@@ -145,6 +145,9 @@ func (l *lexer) skip() {
 
 func (l *lexer) emit(typ tokenType) {
 	l.output <- token{typ, l.input[l.start:l.pos], l.line, l.startcol}
+	
+	fmt.Println(">>> DEBUG emit - ", typ, token{typ, l.input[l.start:l.pos], l.line, l.startcol})
+	
 	l.start = l.pos
 	l.startcol = 0
 }
