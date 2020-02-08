@@ -211,6 +211,6 @@ func (rs *ruleSet) executeAssignment(ts []token) *assignmentError {
 	}
 
 	rs.vars[assignee] = vals
-	
+
 	return nil
 }

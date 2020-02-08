@@ -14,32 +14,32 @@ import (
 var (
 	// True if messages should be printed without fancy colors.
 	nocolor bool = false
-	
+
 	// Default shell to use if none specified via $shell.
 	defaultShell string
-	
+
 	// Do not drop shell arguments when calling with no further arguments
 	// This works around `sh -c commands...` being a thing, but allows the `rc -v commands...` argument-less flags
 	dontDropArgs bool
-	
+
 	// True if we are ignoring timestamps and rebuilding everything.
 	rebuildall bool = false
-	
+
 	// Set of targets for which we are forcing rebuild
 	rebuildtargets map[string]bool = make(map[string]bool)
-	
+
 	// Lock on standard out, messages don't get interleaved too much.
 	mkMsgMutex sync.Mutex
-	
+
 	// Limit the number of recipes executed simultaneously.
 	subprocsAllowed int
-	
+
 	// Current subprocesses being executed
 	subprocsRunning int
-	
+
 	// Wakeup on a free subprocess slot.
 	subprocsRunningCond *sync.Cond = sync.NewCond(&sync.Mutex{})
-	
+
 	// Prevent more than one recipe at a time from trying to take over
 	exclusiveSubproc = sync.Mutex{}
 )
@@ -327,7 +327,7 @@ func main() {
 	flag.BoolVar(&dontDropArgs, "F", false, "don't drop shell arguments when no further arguments are specified")
 	colorize := flag.Bool("C", false, "colorize output")
 	flag.Parse()
-	
+
 	nocolor = !*colorize
 
 	mkfile, err := os.Open(mkfilepath)

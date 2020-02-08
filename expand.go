@@ -305,10 +305,10 @@ func expandBackQuoted(input string, vars map[string][]string) ([]string, int) {
 	}
 
 	// TODO: handle errors
-	
+
 	// TODO - might have $shell available by now, but maybe not?
 	// It's not populated, regardless
-	
+
 	var shell string
 	var shellargs []string
 	if len(vars["shell"]) < 1 {
@@ -316,7 +316,7 @@ func expandBackQuoted(input string, vars map[string][]string) ([]string, int) {
 	} else {
 		shell, shellargs = expandShell(vars["shell"][0], shellargs)
 	}
-	
+
 	output, _ := subprocess(shell, shellargs, input[:j], true)
 
 	parts := make([]string, 0)
@@ -328,7 +328,6 @@ func expandBackQuoted(input string, vars map[string][]string) ([]string, int) {
 	return parts, (j + 1)
 }
 
-
 // Expand the shell command into cmd, args...
 // Ex. "sh -c", "pwd" becomes sh, [-c, pwd]
 func expandShell(shcmd string, args []string) (string, []string) {
@@ -337,11 +336,11 @@ func expandShell(shcmd string, args []string) (string, []string) {
 
 	fields := strings.Fields(shcmd)
 	shell = fields[0]
-	
+
 	if len(fields) > 1 {
 		shellargs = fields[1:]
 	}
-	
+
 	switch {
 	// TODO - This case logic might be shaky, works for now
 	case len(shellargs) > 0 && len(args) > 0:
@@ -353,12 +352,12 @@ func expandShell(shcmd string, args []string) (string, []string) {
 	default:
 		//fmt.Println("dropping in expand!")
 	}
-	
+
 	if len(shellargs) > 0 && dontDropArgs {
-		
+
 	} else {
-		
+
 	}
-		
+
 	return shell, args
 }
