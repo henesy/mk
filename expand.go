@@ -309,7 +309,6 @@ func expandBackQuoted(input string, vars map[string][]string) ([]string, int) {
 	// TODO - might have $shell available by now, but maybe not?
 	// It's not populated, regardless
 	
-	// DEBUG - fix args
 	var shell string
 	var shellargs []string
 	if len(vars["shell"]) < 1 {
@@ -343,8 +342,22 @@ func expandShell(shcmd string, args []string) (string, []string) {
 		shellargs = fields[1:]
 	}
 	
-	if len(shellargs) > 0 {
+	switch {
+	// TODO - This case logic might be shaky, works for now
+	case len(shellargs) > 0 && len(args) > 0:
 		args = append(shellargs, args...)
+
+	case len(shellargs) > 0 && dontDropArgs:
+		args = append(shellargs, args...)
+
+	default:
+		//fmt.Println("dropping in expand!")
+	}
+	
+	if len(shellargs) > 0 && dontDropArgs {
+		
+	} else {
+		
 	}
 		
 	return shell, args

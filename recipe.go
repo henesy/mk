@@ -106,8 +106,6 @@ func dorecipe(target string, u *node, e *edge, dryrun bool) bool {
 		sh = s
 		args = a
 	}
-	
-	fmt.Println(">>> DEBUG recipe sh, args - ", sh, args)
 
 	mkPrintRecipe(target, input, e.r.attributes.quiet)
 
@@ -138,8 +136,6 @@ func dorecipe(target string, u *node, e *edge, dryrun bool) bool {
 //   success is true if the exit code was 0 and false otherwise
 //
 func subprocess(program string, args []string, input string, capture_out bool) (string, bool) {
-	fmt.Println(">>> DEBUG program, args - ", program, args)
-
 	program_path, err := exec.LookPath(program)
 	if err != nil {
 		log.Fatal(err)
