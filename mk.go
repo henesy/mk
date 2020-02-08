@@ -11,32 +11,37 @@ import (
 	"sync"
 )
 
-// True if messages should be printed without fancy colors.
-var nocolor bool = false
-
-// True if we are ignoring timestamps and rebuilding everything.
-var rebuildall bool = false
-
-// Set of targets for which we are forcing rebuild
-var rebuildtargets map[string]bool = make(map[string]bool)
-
-// Lock on standard out, messages don't get interleaved too much.
-var mkMsgMutex sync.Mutex
+var (
+	// True if messages should be printed without fancy colors.
+	nocolor bool = false
+	
+	// Default shell to use if none specified via $shell.
+	defaultShell string
+	
+	// True if we are ignoring timestamps and rebuilding everything.
+	rebuildall bool = false
+	
+	// Set of targets for which we are forcing rebuild
+	rebuildtargets map[string]bool = make(map[string]bool)
+	
+	// Lock on standard out, messages don't get interleaved too much.
+	mkMsgMutex sync.Mutex
+	
+	// Limit the number of recipes executed simultaneously.
+	subprocsAllowed int
+	
+	// Current subprocesses being executed
+	subprocsRunning int
+	
+	// Wakeup on a free subprocess slot.
+	subprocsRunningCond *sync.Cond = sync.NewCond(&sync.Mutex{})
+	
+	// Prevent more than one recipe at a time from trying to take over
+	exclusiveSubproc = sync.Mutex{}
+)
 
 // The maximum number of times an rule may be applied.
 const maxRuleCnt = 1
-
-// Limit the number of recipes executed simultaneously.
-var subprocsAllowed int
-
-// Current subprocesses being executed
-var subprocsRunning int
-
-// Wakeup on a free subprocess slot.
-var subprocsRunningCond *sync.Cond = sync.NewCond(&sync.Mutex{})
-
-// Prevent more than one recipe at a time from trying to take over
-var exclusiveSubproc = sync.Mutex{}
 
 // Wait until there is an available subprocess slot.
 func reserveSubproc() {
@@ -314,7 +319,11 @@ func main() {
 	flag.IntVar(&subprocsAllowed, "p", 4, "maximum number of jobs to execute in parallel")
 	flag.BoolVar(&interactive, "i", false, "prompt before executing rules")
 	flag.BoolVar(&quiet, "q", false, "don't print recipes before executing them")
+	flag.StringVar(&defaultShell, "s", "sh", "default shell to use if none are specified via $shell")
+	colorize := flag.Bool("C", false, "colorize output")
 	flag.Parse()
+	
+	nocolor = !*colorize
 
 	mkfile, err := os.Open(mkfilepath)
 	if err != nil {

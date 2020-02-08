@@ -117,13 +117,23 @@ func parsePipeInclude(p *parser, t token) parserStateFun {
 		for i := 0; i < len(p.tokenbuf); i++ {
 			args[i] = p.tokenbuf[i].val
 		}
+		
+		// TODO - might have $shell available by now, but maybe not?
+		// It's not populated, regardless
+		var shell string
+		if len(p.rules.vars["shell"]) < 1 {
+			shell = defaultShell
+		} else {
+			shell = p.rules.vars["shell"][0]
+		}
 
-		output, success := subprocess("sh", args, "", true)
+
+		output, success := subprocess(shell, args, "", true)
 		if !success {
 			p.basicErrorAtToken("subprocess include failed", t)
 		}
 
-		parseInto(output, fmt.Sprintf("%s:sh", p.name), p.rules, p.path)
+		parseInto(output, fmt.Sprintf("%s:%s", p.name, shell), p.rules, p.path)
 
 		p.clear()
 		return parseTopLevel
@@ -155,6 +165,9 @@ func parseRedirInclude(p *parser, t token) parserStateFun {
 		for i := range p.tokenbuf {
 			filename += p.tokenbuf[i].val
 		}
+		
+		filename = os.ExpandEnv(filename)
+		
 		file, err := os.Open(filename)
 		if err != nil {
 			p.basicErrorAtToken(fmt.Sprintf("cannot open %s", filename), p.tokenbuf[0])
@@ -302,6 +315,15 @@ func parseRecipe(p *parser, t token) parserStateFun {
 		if err != nil {
 			msg := fmt.Sprintf("while reading a rule's attributes expected an attribute but found \"%c\".", err.found)
 			p.basicErrorAtToken(msg, p.tokenbuf[i+1])
+		}
+		
+		// If we don't have a shell set, check vars, check default shell
+		if r.shell == nil {
+			if len(p.rules.vars["shell"]) > 0 {
+				r.shell = p.rules.vars["shell"]
+			} else {
+				r.shell = []string{defaultShell}
+			}
 		}
 
 		if r.attributes.regex {

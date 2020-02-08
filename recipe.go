@@ -87,9 +87,15 @@ func dorecipe(target string, u *node, e *edge, dryrun bool) bool {
 		}
 	}
 	vars["prereq"] = prereqs
+	
+	// Set shell	
+	if len(vars["shell"]) < 1 {
+		vars["shell"] = []string{defaultShell}
+	}
 
 	input := expandRecipeSigils(e.r.recipe, vars)
-	sh := "sh"
+	
+	sh := vars["shell"][0]
 	args := []string{}
 
 	if len(e.r.shell) > 0 {
@@ -125,10 +131,7 @@ func dorecipe(target string, u *node, e *edge, dryrun bool) bool {
 //
 //   success is true if the exit code was 0 and false otherwise
 //
-func subprocess(program string,
-	args []string,
-	input string,
-	capture_out bool) (string, bool) {
+func subprocess(program string, args []string, input string, capture_out bool) (string, bool) {
 	program_path, err := exec.LookPath(program)
 	if err != nil {
 		log.Fatal(err)
