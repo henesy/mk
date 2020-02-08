@@ -319,7 +319,7 @@ func main() {
 	flag.IntVar(&subprocsAllowed, "p", 4, "maximum number of jobs to execute in parallel")
 	flag.BoolVar(&interactive, "i", false, "prompt before executing rules")
 	flag.BoolVar(&quiet, "q", false, "don't print recipes before executing them")
-	flag.StringVar(&defaultShell, "s", "sh", "default shell to use if none are specified via $shell")
+	flag.StringVar(&defaultShell, "s", "sh -c", "default shell to use if none are specified via $shell")
 	colorize := flag.Bool("C", false, "colorize output")
 	flag.Parse()
 	
