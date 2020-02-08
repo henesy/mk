@@ -95,13 +95,19 @@ func dorecipe(target string, u *node, e *edge, dryrun bool) bool {
 
 	input := expandRecipeSigils(e.r.recipe, vars)
 	
-	sh := vars["shell"][0]
-	args := []string{}
+	sh, args := expandShell(vars["shell"][0], []string{})
 
 	if len(e.r.shell) > 0 {
-		sh = e.r.shell[0]
-		args = e.r.shell[1:]
+		var s string
+		var a []string
+		
+		s, a = expandShell(e.r.shell[0], e.r.shell[1:])
+	
+		sh = s
+		args = a
 	}
+	
+	fmt.Println(">>> DEBUG recipe sh, args - ", sh, args)
 
 	mkPrintRecipe(target, input, e.r.attributes.quiet)
 
@@ -132,6 +138,8 @@ func dorecipe(target string, u *node, e *edge, dryrun bool) bool {
 //   success is true if the exit code was 0 and false otherwise
 //
 func subprocess(program string, args []string, input string, capture_out bool) (string, bool) {
+	fmt.Println(">>> DEBUG program, args - ", program, args)
+
 	program_path, err := exec.LookPath(program)
 	if err != nil {
 		log.Fatal(err)

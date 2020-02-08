@@ -120,13 +120,17 @@ func parsePipeInclude(p *parser, t token) parserStateFun {
 		
 		// TODO - might have $shell available by now, but maybe not?
 		// It's not populated, regardless
+		
+		// DEBUG - fix args
 		var shell string
-		if len(p.rules.vars["shell"]) < 1 {
-			shell = defaultShell
-		} else {
-			shell = p.rules.vars["shell"][0]
-		}
 
+		if len(p.rules.vars["shell"]) < 1 {
+			shell, args = expandShell(defaultShell, args)
+		} else {
+			shell, args = expandShell(p.rules.vars["shell"][0], args)
+		}
+		
+		fmt.Println(">>> DEBUG parse shell, args", shell, args)
 
 		output, success := subprocess(shell, args, "", true)
 		if !success {

@@ -308,14 +308,17 @@ func expandBackQuoted(input string, vars map[string][]string) ([]string, int) {
 	
 	// TODO - might have $shell available by now, but maybe not?
 	// It's not populated, regardless
+	
+	// DEBUG - fix args
 	var shell string
+	var shellargs []string
 	if len(vars["shell"]) < 1 {
-		shell = defaultShell
+		shell, shellargs = expandShell(defaultShell, shellargs)
 	} else {
-		shell = vars["shell"][0]
+		shell, shellargs = expandShell(vars["shell"][0], shellargs)
 	}
 	
-	output, _ := subprocess(shell, nil, input[:j], true)
+	output, _ := subprocess(shell, shellargs, input[:j], true)
 
 	parts := make([]string, 0)
 	_, tokens := lexWords(output)
@@ -324,4 +327,25 @@ func expandBackQuoted(input string, vars map[string][]string) ([]string, int) {
 	}
 
 	return parts, (j + 1)
+}
+
+
+// Expand the shell command into cmd, args...
+// Ex. "sh -c", "pwd" becomes sh, [-c, pwd]
+func expandShell(shcmd string, args []string) (string, []string) {
+	var shell string
+	var shellargs []string
+
+	fields := strings.Fields(shcmd)
+	shell = fields[0]
+	
+	if len(fields) > 1 {
+		shellargs = fields[1:]
+	}
+	
+	if len(shellargs) > 0 {
+		args = append(shellargs, args...)
+	}
+		
+	return shell, args
 }
