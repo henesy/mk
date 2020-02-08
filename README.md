@@ -69,7 +69,9 @@ improvements.
   1. Add an 'S' attribute to execute recipes with programs other than sh. This
      way, you don't have to separate your six line python script into its own
      file. Just stick it directly in the mkfile.
-  1. Pretty colors.
+  1. Add `$shell` variable which will be sourced as the shell for recipe blocks 
+     unless overriden by an 'S' attribute.
+  1. Pretty colors via `-C`.
 
 
 # Usage
@@ -82,9 +84,11 @@ improvements.
   * `-n` Dry run, print commands without actually executing.
   * `-r` Force building of the immediate targets.
   * `-a` Force building the targets and of all their dependencies.
-  * `-p` Maximum number of jobs to execute in parallel (default: 8)
+  * `-p int` Maximum number of jobs to execute in parallel (default: 8).
   * `-i` Show rules that will execute and prompt before executing.
-
+  * `-C` Colorize output.
+  * `-F` Don't drop shell arguments when no further arguments are specified.
+  * `-s name` Default shell to use if none are specified via $shell (default: "sh -c")
 
 # Non-shell recipes
 
